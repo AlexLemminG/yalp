@@ -99,7 +99,10 @@ public class EditorScreen extends SplitScreen{
         }
 
         public void setSelected(GObject newSelected, Vector3 mouseWorldXY){
-            if(selectedGObject == newSelected)return;
+            if(selectedGObject == newSelected){
+                updateSelectedDelta(mouseWorldXY);
+                return;
+            }
             if(selectedGObject != null){
                 ((ImageComp) selectedGObject.getComponent(ImageComp.class)).boundColor = ImageComp.DEFAULT_BOUND_COLOR;
                 leftTable.clearChildren();
@@ -109,7 +112,7 @@ public class EditorScreen extends SplitScreen{
             if(selectedGObject != null){
                 ((ImageComp) selectedGObject.getComponent(ImageComp.class)).boundColor = ImageComp.SELECTED_BOUND_COLOR;
                 if(mouseWorldXY != null){
-                    selectedDelta.set(selectedGObject.pos.x - mouseWorldXY.x, selectedGObject.pos.y - mouseWorldXY.y);
+                    updateSelectedDelta(mouseWorldXY);
                 }
                 leftTable.add(generatePropertiesTable(selectedGObject)).align(Align.left);
                 leftTable.row();
@@ -117,6 +120,11 @@ public class EditorScreen extends SplitScreen{
                 selectedGObject.setProperty("selected", Boolean.TRUE);
             }
             Gdx.app.log("Editor", newSelected + " selected");
+        }
+
+        private void updateSelectedDelta(Vector3 mouseWorldXY){
+            if(selectedGObject != null)
+                selectedDelta.set(selectedGObject.pos.x - mouseWorldXY.x, selectedGObject.pos.y - mouseWorldXY.y);
         }
 
         @Override
@@ -159,6 +167,7 @@ public class EditorScreen extends SplitScreen{
             return super.scrolled(amount);
         }
 
+        private boolean debugAll = true;
         @Override
         public boolean keyDown(int keycode) {
             if(keycode == Input.Keys.P){
@@ -169,6 +178,10 @@ public class EditorScreen extends SplitScreen{
             }
             if(keycode == Input.Keys.N){
                 new SimpleGObject(bs.level);
+            }
+            if(keycode == Input.Keys.F1){
+                debugAll = !debugAll;
+                stage.setDebugAll(debugAll);
             }
             return super.keyDown(keycode);
         }

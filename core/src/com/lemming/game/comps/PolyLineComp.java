@@ -63,14 +63,14 @@ public class PolyLineComp extends Comp{
     @Override
     public Array<EditableValue> getValues() {
         Array<EditableValue> result = super.getValues();
-        result.add(new EditableValue() {
+        result.add(new EditableValue.IntValue() {
             @Override
-            public String get() {
-                return ""+localPoints.size;
+            public Integer get() {
+                return localPoints.size;
             }
 
             @Override
-            public void set(String value) {
+            public void set(Integer value) {
                 int n = Integer.valueOf(value);
                 while(localPoints.size < n)
                     addPoint(new Vector2());

@@ -16,6 +16,8 @@ public class PointLightComp extends Comp implements HasColor, HasRadius{
     public void update(float dt) {
         super.update(dt);
         pointLight.setPosition(owner.pos);
+        //важно т к изменяем цвет не вызывая метод
+        setColor(getColor());
     }
 
     @Override
