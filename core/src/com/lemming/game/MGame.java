@@ -5,9 +5,10 @@ import com.lemming.game.editor.EditorScreen;
 
 public class MGame extends Game {
     /*TODO
-    3 - polylinecomp (But why?) DOOooooo it
-    4 - pointParameterEditor
-    5 - переместить ParameterEditor в EditableValue
+    3 - polylinecomp make it polygon
+    3.5 polylineComp make it Path?
+    4 - followPathComp
+    5 - move some to GUI
      */
     @Override
     public void create() {

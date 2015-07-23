@@ -87,6 +87,14 @@ public class View {
         level.view = this;
     }
 
+    public boolean isDrawDebug() {
+        return drawDebug;
+    }
+
+    public void setDrawDebug(boolean drawDebug) {
+        this.drawDebug = drawDebug;
+    }
+
     private boolean drawDebug = true;
     private boolean drawSprites = true;
     public void render(){

@@ -11,11 +11,12 @@ import com.lemming.game.ui.EditableValue;
  */
 public class PointLightComp extends Comp implements HasColor, HasRadius{
     PointLight pointLight;
-
+    Color color;
     @Override
     public void update(float dt) {
         super.update(dt);
-        pointLight.setPosition(owner.pos);
+        if(!attachedToBody)
+            pointLight.setPosition(owner.pos);
         //важно т к изменяем цвет не вызывая метод
         setColor(getColor());
     }
@@ -31,13 +32,21 @@ public class PointLightComp extends Comp implements HasColor, HasRadius{
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        pointLight.setActive(enabled);
+        if(pointLight != null)
+            pointLight.setActive(enabled);
     }
 
+    boolean attachedToBody = false;
     @Override
     public void onCreate() {
         super.onCreate();
-        this.pointLight = new PointLight(owner.level.view.getRayHandler(), 1024, new Color(), 100, owner.pos.x, owner.pos.y);
+        pointLight = new PointLight(owner.level.view.getRayHandler(), 1024, new Color(1,1,1,1), 5, owner.pos.x, owner.pos.y);
+        pointLight.setActive(isEnabled());
+        BodyComp bodyComp = owner.getComponent(BodyComp.class);
+        if (bodyComp != null){
+            attachedToBody = true;
+            pointLight.attachToBody(bodyComp.body);
+        }
     }
 
     public PointLightComp(GObject gObject) {

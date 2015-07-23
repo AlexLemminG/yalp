@@ -28,12 +28,10 @@ public class GObject {
     public void onCreate(){
         addCross();
         for(Comp c : components){
-            if(c.isEnabled())
-                c.onCreate();
+            c.onCreate();
         }
         for(Comp c : unshowableComponents){
-            if(c.isEnabled())
-                c.onCreate();
+            c.onCreate();
         }
     }
 
@@ -59,11 +57,11 @@ public class GObject {
         }
     }
 
-    public Comp getComponent(Class c){
+    public <T extends Comp> T getComponent(Class<T> c){
         for(int i = 0; i < components.size; i++){
             Comp comp = components.get(i);
             if(comp.getClass().equals(c))
-                return comp;
+                return ((T) comp);
         }
         return null;
     }
@@ -121,6 +119,7 @@ public class GObject {
         components.removeValue(comp, true);
         comp.unresizable = true;
         comp.drawPoints = false;
+        comp.circled.set(false);
         unshowableComponents.add(comp);
     }
 }

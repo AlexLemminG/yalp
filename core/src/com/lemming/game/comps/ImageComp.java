@@ -15,7 +15,7 @@ import static com.badlogic.gdx.graphics.g2d.SpriteBatch.*;
 /**
  * Created by Alexander on 16.07.2015.
  */
-public class ImageComp extends Comp{
+public class ImageComp extends Comp implements HasTexture{
     public static final Color DEFAULT_BOUND_COLOR = Color.BLACK;
     public static final Color SELECTED_BOUND_COLOR = Color.WHITE;
     public Sprite sprite;
@@ -64,16 +64,35 @@ public class ImageComp extends Comp{
 
     @Override
     public Array<EditableValue> getValues() {
-        Array<EditableValue> result = new Array<EditableValue>();
-
+        Array<EditableValue> result = super.getValues();
+        result.add(EditableValue.getValue(this,"textureFromFile"));
         result.add(EditableValue.getValue(this,"originX"));
         result.add(EditableValue.getValue(this,"originY"));
         result.add(EditableValue.getValue(this,"scaleX"));
         result.add(EditableValue.getValue(this,"scaleY"));
+
         return result;
     }
 
     public String toString(){
         return "Image Component";
+    }
+
+    @Override
+    public Texture getTexture() {
+        return sprite.getTexture();
+    }
+
+    @Override
+    public void setTexture(Texture texture) {
+        float oX = sprite.getOriginX();
+        float oY = sprite.getOriginY();
+        float sX = sprite.getScaleX();
+        float sY = sprite.getScaleY();
+        sprite = new Sprite(texture);
+        sprite.setOrigin(oX, oY);
+        sprite.setScale(sX, sY);
+
+
     }
 }

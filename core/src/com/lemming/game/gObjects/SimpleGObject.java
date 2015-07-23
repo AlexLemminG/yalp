@@ -16,9 +16,13 @@ public class SimpleGObject extends GObject{
         BodyComp value = new BodyComp(this);
 //        value.body.setAngularVelocity(((float) Math.random()));
 //        value.body.setLinearVelocity(((float) Math.random()), ((float) Math.random()));
-        new ImageComp(this).sprite.setScale(0.01f);
-        new PointLightComp(this);
-        new PolyLineComp(this);
-        new ClampToPathComp(this, new Path(new Array<Vector2>(new Vector2[]{new Vector2(-10, -10), new Vector2(10, 10), new Vector2(20, 0)})));
+        ImageComp imageComp = new ImageComp(this);
+        imageComp.sprite.setScale(0.01f);
+        imageComp.setEnabled(false);
+        new PointLightComp(this).setEnabled(false);
+        new PolyLineComp(this).setEnabled(true);
+        new FollowSinComp(this).setEnabled(false);
+        new ClampToPathComp(this, new Path(new Array<Vector2>(new Vector2[]{new Vector2(-10, -10), new Vector2(10, 10), new Vector2(20, 0)}))).setEnabled(false);
+        new WorldSettingComp(this).setEnabled(false);
     }
 }

@@ -18,6 +18,7 @@ public class PolyLineComp extends Comp{
     private static final Color SELECTED_COLOR = Color.WHITE;
     private static final Color DEFAULT_COLOR = Color.CLEAR;
     Color color = DEFAULT_COLOR;
+    public EditableValue.BoolValue circled = new EditableValue.BoolValue(true);
     public boolean unresizable = false;
     public boolean drawPoints = true;
     Array<Vector2> localPoints = new Array<Vector2>();
@@ -32,6 +33,8 @@ public class PolyLineComp extends Comp{
     public void render(View view) {
         super.render(view);
         float lx, ly;
+        if(localPoints.size != vertices.length / 2)
+            vertices = new float[localPoints.size * 2];
         for(int i = 0; i < localPoints.size; i++){
             lx = localPoints.get(i).x;
             ly = localPoints.get(i).y;
@@ -50,6 +53,10 @@ public class PolyLineComp extends Comp{
                 if (color.equals(Color.CLEAR)) return;
                 view.getShapeRenderer().setColor(color);
                 view.getShapeRenderer().polyline(vertices);
+                if(circled.get())
+                    view.getShapeRenderer().line(vertices[vertices.length-2],
+                                                vertices[vertices.length -1],
+                                                vertices[0], vertices[1]);
             }
             if(drawPoints) {
                 Vector2 temp = new Vector2();
@@ -63,7 +70,8 @@ public class PolyLineComp extends Comp{
     @Override
     public Array<EditableValue> getValues() {
         Array<EditableValue> result = super.getValues();
-        result.add(new EditableValue.IntValue() {
+        result.add(circled);
+        EditableValue.IntValue value = new EditableValue.IntValue() {
             @Override
             public Integer get() {
                 return localPoints.size;
@@ -71,16 +79,22 @@ public class PolyLineComp extends Comp{
 
             @Override
             public void set(Integer value) {
-                int n = Integer.valueOf(value);
-                while(localPoints.size < n)
+                int n = value;
+                while (localPoints.size < n)
                     addPoint(new Vector2());
                 localPoints.size = n;
             }
-        });
-        result.get(0).updateEditor = true;
+        };
+        value.name = "numberOfPoints";
+        value.updateEditor = true;
+        result.add(value);
+
         for(int i = 0; i < localPoints.size; i++){
-            result.add(EditableValue.getValue(localPoints.get(i), "vectorX"));
-            result.add(EditableValue.getValue(localPoints.get(i), "vectorY"));
+            EditableValue.Vector2Value pointI = new EditableValue.Vector2Value(localPoints.get(i));
+            pointI.name = "point " + i;
+            result.add(pointI);
+//            result.add(EditableValue.getValue(localPoints.get(i), "vectorX"));
+//            result.add(EditableValue.getValue(localPoints.get(i), "vectorY"));
         }
         return result;
     }

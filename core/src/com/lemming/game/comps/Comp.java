@@ -10,7 +10,13 @@ import com.lemming.game.ui.EditableValue;
  */
 public class Comp {
     GObject owner;
-    private boolean enabled = true;
+    private EditableValue.BoolValue enabled = new EditableValue.BoolValue(true){
+        @Override
+        public void set(Boolean value) {
+            super.set(value);
+            Comp.this.setEnabled(value);
+        }
+    };
 
     public Comp(GObject gObject){
         this.owner = gObject;
@@ -30,14 +36,17 @@ public class Comp {
     }
 
     public Array<EditableValue> getValues(){
-        return new Array<EditableValue>();
+        Array<EditableValue> editableValues = new Array<EditableValue>();
+        enabled.name = "enabled";
+        editableValues.add(enabled);
+        return editableValues;
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return enabled.get();
     }
 
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        this.enabled.value = enabled;
     }
 }

@@ -18,7 +18,7 @@ import com.lemming.game.gObjects.SimpleGObject;
 import com.lemming.game.trash.AABB;
 import com.lemming.game.trash.SomeScreen;
 import com.lemming.game.ui.ComponentsList;
-import com.lemming.game.ui.ParameterEditor;
+import com.lemming.game.ui.EditableValue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +45,6 @@ public class EditorScreen extends SplitScreen{
         super.render(delta);
         stage.act(delta);
         stage.draw();
-        System.out.println(Gdx.input.getX());
         Vector3 v = stage.getCamera().unproject(new Vector3(Gdx.input.getX(),
                         Gdx.input.getY(), 0));
         v.x = v.x - (int)(v.x/Gdx.graphics.getWidth()) * Gdx.graphics.getWidth();
@@ -79,11 +78,11 @@ public class EditorScreen extends SplitScreen{
 
         private Table generatePropertiesTable(final GObject object){
             Table table = new Table(skin);
-            table.add(new ParameterEditor(object, "x", null).left());
+            EditableValue.getValue(object, "x").addToTable(table);
             table.row();
-            table.add(new ParameterEditor(object, "y", null));
+            EditableValue.getValue(object, "y").addToTable(table);
             table.row();
-            table.add(new ParameterEditor(object, "a", null));
+            EditableValue.getValue(object, "a").addToTable(table);
             table.setWidth(150);
             return table.align(Align.topLeft);
         }
@@ -182,6 +181,7 @@ public class EditorScreen extends SplitScreen{
             if(keycode == Input.Keys.F1){
                 debugAll = !debugAll;
                 stage.setDebugAll(debugAll);
+                bs.view.setDrawDebug(debugAll);
             }
             return super.keyDown(keycode);
         }
