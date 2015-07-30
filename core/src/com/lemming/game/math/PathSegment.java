@@ -6,14 +6,21 @@ import com.badlogic.gdx.math.Vector2;
  * Created by Alexander on 20.07.2015.
  */
 public class PathSegment {
-    Vector2 start = new Vector2();
+    private Vector2 start = new Vector2();
+    private Vector2 end = new Vector2();
     private Vector2 endMinusStart = new Vector2();
     private Vector2 endMinusStartNormalized = new Vector2();
     float totalLength;
 
     public PathSegment(Vector2 start, Vector2 end) {
-        this.start.set(start);
-        endMinusStart = end.cpy().sub(start);
+        this.start = start;
+        this.end = end;
+        update();
+    }
+
+    public void update(){
+        endMinusStart.set(end).sub(start);
+        endMinusStartNormalized.set(endMinusStart).nor();
         totalLength = endMinusStart.len();
     }
 
@@ -33,5 +40,23 @@ public class PathSegment {
         }else{
             return (x-start.x)/endMinusStart.x;
         }
+    }
+
+    public void setStart(Vector2 start) {
+        this.start = start;
+        update();
+    }
+
+    public void setEnd(Vector2 end) {
+        this.end = end;
+        update();
+    }
+
+    public Vector2 getStart() {
+        return start;
+    }
+
+    public Vector2 getEnd() {
+        return end;
     }
 }

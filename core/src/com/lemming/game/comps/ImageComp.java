@@ -43,7 +43,7 @@ public class ImageComp extends Comp implements HasTexture{
             sprite.draw(view.getSpriteBatch());
         }
         if(view.getCurrentRenderer() == View.Renderers.SHAPE_RENDERER){
-            boundColor = ((Boolean) owner.getProperty("selected")) ? SELECTED_BOUND_COLOR : DEFAULT_BOUND_COLOR;
+            boundColor = (Boolean.valueOf(((String) owner.getProperty("selected")))) ? SELECTED_BOUND_COLOR : DEFAULT_BOUND_COLOR;
             view.getShapeRenderer().setColor(boundColor);
             float[] vertices = new float[10];
             float[] verticesCombined = sprite.getVertices();

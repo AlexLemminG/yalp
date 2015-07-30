@@ -22,7 +22,7 @@ public class ClampToPathComp extends Comp{
         super.render(view);
         if(view.getCurrentRenderer() == View.Renderers.SHAPE_RENDERER){
             view.getShapeRenderer().setColor(Color.WHITE);
-            view.getShapeRenderer().polyline(path.toVertices());
+            view.getShapeRenderer().polyline(path.getVertices());
         }
     }
 

@@ -44,4 +44,20 @@ public class Utils {
         }
         return result;
     }
+
+    public static void drawPolygon(ShapeRenderer sr, float[] polygon, float lineWidth){
+        ShapeRenderer.ShapeType type = sr.getCurrentType();
+        sr.end();
+        if(lineWidth == 0f){
+            sr.begin(ShapeRenderer.ShapeType.Line);
+            sr.polygon(polygon);
+        }else{
+            sr.begin(ShapeRenderer.ShapeType.Filled);
+            for(int i = 0; i < polygon.length / 2; i++){
+                sr.rectLine(polygon[i*2], polygon[i*2+1], polygon[(i*2+2)%polygon.length], polygon[(i*2+3)%polygon.length], lineWidth);
+            }
+        }
+        sr.end();
+        sr.begin(type);
+    }
 }

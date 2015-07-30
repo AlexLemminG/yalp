@@ -6,16 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.lemming.game.basic.GObject;
 import com.lemming.game.comps.*;
 import com.lemming.game.trash.TextureFromFile;
@@ -27,7 +25,7 @@ import java.util.HashMap;
  * Created by Alexander on 17.07.2015.
  */
 public abstract class EditableValue<T> implements Cloneable{
-    private static class DefaultTextFieldListener extends InputListener{
+    private static class DefaultTextFieldListener extends InputListener implements EventListener{
         private TextField textField;
         private EditableValue value;
 
@@ -41,19 +39,34 @@ public abstract class EditableValue<T> implements Cloneable{
 
         @Override
         public boolean keyDown(InputEvent event, int keycode) {
+
+
             if (keycode == Input.Keys.ENTER) {
-                try {
-                    value.setStr(textField.getText());
-                    textField.setColor(Color.WHITE);
-                    if(value.updateEditor && componentEditor != null)
-                        componentEditor.update();
-                }catch (IllegalArgumentException e){
-                    textField.setColor(Color.RED);
-                }
+                update();
             }
             return super.keyDown(event, keycode);
         }
+        private void update(){
+            try {
+                value.setStr(textField.getText());
+                textField.setColor(Color.WHITE);
+                if(value.updateEditor && componentEditor != null)
+                    componentEditor.update();
+            }catch (IllegalArgumentException e){
+                textField.setColor(Color.RED);
+            }
+        }
 
+        @Override
+        public boolean handle(Event e) {
+            update();
+            if(e instanceof FocusListener.FocusEvent){
+                if(((FocusListener.FocusEvent) e).getType() == FocusListener.FocusEvent.Type.keyboard && !((FocusListener.FocusEvent) e).isFocused()){
+                    update();
+                }
+            }
+            return super.handle(e);
+        }
     }
     private static class UpdateValueAction extends Action{
         private EditableValue value;
@@ -101,6 +114,40 @@ public abstract class EditableValue<T> implements Cloneable{
                 float v = value.get();
                 v += deltaX * speed;
                 value.setStr("" + v);
+            } catch (NumberFormatException e) {
+            }
+            super.pan(event, x, y, deltaX, deltaY);
+        }
+    }
+    private static class IntLabelListener extends ActorGestureListener{
+        float speed = 0;
+        float v;
+        EditableValue.IntValue value;
+
+        public IntLabelListener(EditableValue.IntValue value) {
+            this.value = value;
+        }
+
+        @Override
+        public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+            Gdx.input.setCursorCatched(false);
+        }
+
+        @Override
+        public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            try {
+                Gdx.input.setCursorCatched(true);
+                v = value.get();
+                speed = ( MathUtils.clamp(Math.abs(v) / 100f, 0.01f, Integer.MAX_VALUE));
+            } catch (NumberFormatException e) {
+            }
+        }
+
+        @Override
+        public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
+            try {
+                v += deltaX * speed;
+                value.setStr("" + (int)v);
             } catch (NumberFormatException e) {
             }
             super.pan(event, x, y, deltaX, deltaY);
@@ -170,6 +217,10 @@ public abstract class EditableValue<T> implements Cloneable{
 
         private Vector2 f;
 
+        public Vector2Value(Vector2 f, String name){
+            this.f = f;
+            this.name = name;
+        }
         public Vector2Value(Vector2 f){
             this.f = f;
         }
@@ -203,8 +254,8 @@ public abstract class EditableValue<T> implements Cloneable{
             Label label = new Label(name, componentEditor.getSkin());
             label.addListener(new Vector2LabelListener(this));
             componentEditor.add(label);
-            EditableValue x = getValue(get(), "vectorX");
-            EditableValue y = getValue(get(), "vectorY");
+            EditableValue x = getValue(this, "vectorX");
+            EditableValue y = getValue(this, "vectorY");
             x.name = "x";
             y.name = "y";
 
@@ -220,6 +271,10 @@ public abstract class EditableValue<T> implements Cloneable{
 
         private float f;
 
+        public FloatValue(Float f, String name){
+            this.f = f;
+            this.name = name;
+        }
         public FloatValue(Float f){
             this.f = f;
         }
@@ -260,6 +315,10 @@ public abstract class EditableValue<T> implements Cloneable{
 
         private int anInt;
 
+        public IntValue(Integer anInt, String name){
+            this.anInt = anInt;
+            this.name = name;
+        }
         public IntValue(Integer anInt){
             this.anInt = anInt;
         }
@@ -283,12 +342,27 @@ public abstract class EditableValue<T> implements Cloneable{
         public void setStr(String value){
             set(Integer.valueOf(value));
         }
+
+        @Override
+        public void addToTable(Table componentEditor) {
+            Label label = new Label(name, componentEditor.getSkin());
+            label.addListener(new IntLabelListener(this));
+            TextField tf = new TextField(getStr(), componentEditor.getSkin());
+            tf.addAction(new UpdateValueAction(this));
+            tf.addListener(new DefaultTextFieldListener(tf, this, componentEditor));
+            componentEditor.add(label);
+            componentEditor.add(tf);
+        }
     }
     public static class BoolValue extends EditableValue<Boolean>{
         public BoolValue(){}
 
         public boolean value;
 
+        public BoolValue(Boolean value, String name){
+            this.value = value;
+            this.name = name;
+        }
         public BoolValue(Boolean value){
             this.value = value;
         }
@@ -518,29 +592,31 @@ public abstract class EditableValue<T> implements Cloneable{
         }
     };
     private static FloatValue vectorX = new FloatValue() {
+        Vector2 temp = new Vector2();
         @Override
         public Float get() {
-            Vector2 owner = ((Vector2) this.owner);
-            return owner.x;
+            Vector2Value owner = ((Vector2Value) this.owner);
+            return owner.get().x;
         }
 
         @Override
         public void set(Float value) {
-            Vector2 owner = ((Vector2) this.owner);
-            owner.x = value;
+            Vector2Value owner = ((Vector2Value) this.owner);
+            owner.set(temp.set(value, owner.get().y));
         }
     };
     private static FloatValue vectorY = new FloatValue() {
+        Vector2 temp = new Vector2();
         @Override
         public Float get() {
-            Vector2 owner = ((Vector2) this.owner);
-            return owner.y;
+            Vector2Value owner = ((Vector2Value) this.owner);
+            return owner.get().y;
         }
 
         @Override
         public void set(Float value) {
-            Vector2 owner = ((Vector2) this.owner);
-            owner.y = value;
+            Vector2Value owner = ((Vector2Value) this.owner);
+            owner.set(temp.set(owner.get().x, value));
         }
     };
     private static FloatValue colorR = new FloatValue() {

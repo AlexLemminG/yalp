@@ -10,6 +10,8 @@ import com.lemming.game.ui.EditableValue;
  * Created by Alexander on 18.07.2015.
  */
 public class PointLightComp extends Comp implements HasColor, HasRadius{
+
+//    public static String name = "Point";
     PointLight pointLight;
     Color color;
     @Override
@@ -19,6 +21,12 @@ public class PointLightComp extends Comp implements HasColor, HasRadius{
             pointLight.setPosition(owner.pos);
         //важно т к изменяем цвет не вызывая метод
         setColor(getColor());
+    }
+
+    @Override
+    public void dispose() {
+        pointLight.setActive(false);
+        pointLight.dispose();
     }
 
     @Override
